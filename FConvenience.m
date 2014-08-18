@@ -1,6 +1,7 @@
 #import "FConvenience.h"
 #import <QuartzCore/QuartzCore.h>
 #import <asl.h>
+#import <objc/runtime.h>
 
 static pthread_key_t _ASLClientThreadLocal;
 static void _aslClientCleanup(void *client)
@@ -47,19 +48,56 @@ void _FLog(enum FLogLevel const aLevel,
 #endif
 }
 
-#if !defined(__IPHONE_6_0) || __IPHONE_OS_VERSION_MIN_REQUIRED < __IPHONE_6_0
-@implementation NSArray (Subscripts)
-- (id)objectAtIndexedSubscript:(NSUInteger)idx
+
+static id _ai_objectAtIndexedSubscript(NSArray * const self, SEL const aSel, NSUInteger const aIdx)
 {
-    return [self objectAtIndex:idx];
+    return [self objectAtIndex:aIdx];
+}
+static void _ai_setObjectAtIndexedSubscript(NSMutableArray * const self, SEL const aSel,
+                                            id const aObj, NSUInteger const aIdx)
+{
+    if(aIdx > [self count])
+        [NSException raise:NSInternalInconsistencyException
+                    format:@"Index %lu out of array bounds", (unsigned long)aIdx];
+    else if(aIdx == [self count])
+        [self addObject:aObj];
+    else
+        [self replaceObjectAtIndex:aIdx withObject:aObj];
+}
+
+
+@implementation NSArray (Subscripts_)
++ (void)load
+{
+    if(![NSArray instancesRespondToSelector:@selector(objectAtIndexedSubscript:)])
+        class_addMethod([NSArray class], @selector(objectAtIndexedSubscript:),
+                        (IMP)&_ai_objectAtIndexedSubscript,
+                        [NSFormat(@"%c%c%c", _C_ID, _C_SEL,
+                                  #ifdef __LP64__
+                                    _C_ULNG
+                                  #else
+                                    _C_UINT
+                                  #endif
+                                  ) UTF8String]);
 }
 @end
-@implementation NSMutableArray (Subscripts)
-- (void)setObject:(id)obj atIndexedSubscript:(NSUInteger)idx
+
+@implementation NSMutableArray (Subscripts_)
++ (void)load
 {
-    [self replaceObjectAtIndex:idx withObject:obj];
+    if(![NSMutableArray instancesRespondToSelector:@selector(setObject:atIndexedSubscript:)])
+        class_addMethod([NSArray class], @selector(setObject:atIndexedSubscript:),
+                        (IMP)&_ai_setObjectAtIndexedSubscript,
+                        [NSFormat(@"%c%c%c", _C_ID, _C_SEL, _C_ID,
+                                  #ifdef __LP64__
+                                    _C_ULNG
+                                  #else
+                                    _C_UINT
+                                  #endif
+                                  ) UTF8String]);
 }
 @end
+
 
 // NSMutableDictionary+Subscripts.m
 @implementation  NSDictionary (Subscripts)
@@ -75,7 +113,7 @@ void _FLog(enum FLogLevel const aLevel,
     [self setObject:obj forKey:key];
 }
 @end
-#endif
+
 
 @implementation NSUserDefaults (Subscripts)
 - (id)objectForKeyedSubscript:(id)aKey
