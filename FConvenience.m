@@ -49,17 +49,20 @@ void _FLog(enum FLogLevel const aLevel,
 }
 
 
-static id _ai_objectAtIndexedSubscript(NSArray * const self, SEL const aSel, NSUInteger const aIdx)
+static id _objectAtIndexedSubscript(NSArray * const self, SEL const aSel, NSUInteger const aIdx)
 {
     return [self objectAtIndex:aIdx];
 }
-static void _ai_setObjectAtIndexedSubscript(NSMutableArray * const self, SEL const aSel,
+static void _setObjectAtIndexedSubscript(NSMutableArray * const self, SEL const aSel,
                                             id const aObj, NSUInteger const aIdx)
 {
-    if(aIdx > [self count])
+    NSUInteger const count = [self count];
+    if(aIdx > count)
         [NSException raise:NSInternalInconsistencyException
-                    format:@"Index %lu out of array bounds", (unsigned long)aIdx];
-    else if(aIdx == [self count])
+                    format:@"*** -[%@ %@]: index %lu out of bounds",
+                           NSStringFromClass([self class]), NSStringFromSelector(aSel),
+                           (unsigned long)aIdx];
+    else if(aIdx == count)
         [self addObject:aObj];
     else
         [self replaceObjectAtIndex:aIdx withObject:aObj];
@@ -71,7 +74,7 @@ static void _ai_setObjectAtIndexedSubscript(NSMutableArray * const self, SEL con
 {
     if(![NSArray instancesRespondToSelector:@selector(objectAtIndexedSubscript:)])
         class_addMethod([NSArray class], @selector(objectAtIndexedSubscript:),
-                        (IMP)&_ai_objectAtIndexedSubscript,
+                        (IMP)&_objectAtIndexedSubscript,
                         [NSFormat(@"%c%c%c", _C_ID, _C_SEL,
                                   #ifdef __LP64__
                                     _C_ULNG
@@ -86,9 +89,9 @@ static void _ai_setObjectAtIndexedSubscript(NSMutableArray * const self, SEL con
 + (void)load
 {
     if(![NSMutableArray instancesRespondToSelector:@selector(setObject:atIndexedSubscript:)])
-        class_addMethod([NSArray class], @selector(setObject:atIndexedSubscript:),
-                        (IMP)&_ai_setObjectAtIndexedSubscript,
-                        [NSFormat(@"%c%c%c", _C_ID, _C_SEL, _C_ID,
+        class_addMethod([NSMutableArray class], @selector(setObject:atIndexedSubscript:),
+                        (IMP)&_setObjectAtIndexedSubscript,
+                        [NSFormat(@"%c%c%c%c", _C_ID, _C_SEL, _C_ID,
                                   #ifdef __LP64__
                                     _C_ULNG
                                   #else
