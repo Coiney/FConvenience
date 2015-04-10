@@ -78,6 +78,15 @@ static inline FFloat FFloatRangeMax(FFloatRange const aRange) {
     return aRange.location + aRange.length;
 }
 
+
+#pragma mark - Objective-C -
+#ifdef __OBJC__
+#import <Foundation/Foundation.h>
+#if TARGET_OS_IPHONE
+#   include <UIKit/UIKit.h>
+#endif
+
+
 #if CGFLOAT_IS_DOUBLE
 #    define CGFLOAT_EPSILON DBL_EPSILON
 #    define cgfabs fabs
@@ -128,14 +137,6 @@ static inline FFloat FFloatRangeMax(FFloatRange const aRange) {
         Once(^{ __memoized_x = ({ x; }); }); \
         __memoized_x; \
     })
-#endif
-
-
-#pragma mark - Objective-C -
-#ifdef __OBJC__
-#import <Foundation/Foundation.h>
-#if TARGET_OS_IPHONE
-#   include <UIKit/UIKit.h>
 #endif
 
 
