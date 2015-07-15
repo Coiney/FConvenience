@@ -80,16 +80,10 @@ UIImage *FScreenshot(float const aScale)
     CGContextRef const context = UIGraphicsGetCurrentContext();
 
     UIGraphicsPushContext(context);
-    for(UIWindow * const win in UIApp.windows)
+    for(UIWindow * const window in UIApp.windows)
     {
         CGContextSaveGState(context);
-        CGContextTranslateCTM(context, [win center].x, [win center].y);
-        CGContextConcatCTM(context, [win transform]);
-        CGContextTranslateCTM(context,
-                              -[win bounds].size.width * [[win layer] anchorPoint].x,
-                              -[win bounds].size.height * [[win layer] anchorPoint].y);
-        [[win layer] renderInContext:context];
-
+        [window drawViewHierarchyInRect:window.bounds afterScreenUpdates:YES];
         CGContextRestoreGState(context);
     }
     UIGraphicsPopContext();
