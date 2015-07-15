@@ -163,7 +163,8 @@ void _FLog(enum FLogLevel aLevel,
     OSStatus __err = (error); \
     if(__err) { \
         LogError(@"OSErr %d: " fmt, (int)__err, ##params); \
-        assert(__err == noErr); \
+        if(shouldAssert) \
+            assert(__err == noErr); \
     } \
 } while(0)
 
