@@ -27,23 +27,6 @@
 #pragma mark Numerical Ranges
 
 #define PASTE(a,b) a##b
-#if !defined(MIN)
-#   define __MIN(a,b,c) ({ \
-        __typeof(a) const PASTE(__a,c) = (a); \
-        __typeof(b) const PASTE(__b,c) = (b); \
-        (__typeof(a))(PASTE(__a,c) > PASTE(__b,c) ? PASTE(__b,c) : PASTE(__a,c)); \
-    })
-#   define MIN(a,b) __MIN((a), (b), __COUNTER__)
-#endif
-#if !defined(MAX)
-#   define __MAX(a,b,c) ({ \
-        __typeof(a) const PASTE(__a,c) = (a); \
-        __typeof(b) const PASTE(__b,c) = (b); \
-        PASTE(__a,c) > PASTE(__b,c) ? PASTE(__a,c) : PASTE(__b,c); \
-    })
-#   define MAX(a,b) __MAX((a), (b), __COUNTER__)
-#endif
-
 #if !defined(BETWEEN)
 #   define __BETWEEN(val, low, high, c) ({ \
         __typeof(val) const PASTE(__val,c) = (val); \
