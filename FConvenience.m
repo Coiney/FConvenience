@@ -20,6 +20,7 @@ void _FLog(enum FLogLevel const aLevel,
         client = asl_open(NULL,
                           [[Bundle bundleIdentifier] UTF8String],
                           ASL_OPT_STDERR|ASL_OPT_NO_DELAY);
+        pthread_setspecific(_ASLClientThreadLocal, client);
 #ifndef DEBUG
         asl_set_filter(client, ASL_FILTER_MASK_UPTO(ASL_LEVEL_WARNING));
 #endif
