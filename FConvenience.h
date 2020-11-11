@@ -258,14 +258,6 @@ static inline NSValue  * OVERLOADABLE FBox(NSRange x) { return [NSValue valueWit
 #   define UIIdiomString() ((UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) ? @"ipad" : @"iphone")
 #   define DeviceIsIPad() (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
 
-#    define iOS Version Detection
-#    ifndef __IPHONE_7_0
-#        define __IPHONE_7_0 (70000)
-#    endif
-#    ifndef NSFoundationVersionNumber_iOS_6_1
-#        define NSFoundationVersionNumber_iOS_6_1 (DBL_MAX)
-#    endif
-
 #   define SixOrOlder() (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_6_1)
 #endif
 
